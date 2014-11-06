@@ -1,13 +1,13 @@
-from graphics import *
 import numpy as np
-import sys, pygame
-from cairo._cairo import Surface
+import sys, pygame, time
+from turtledemo.lindenmayer import draw
 
 def printAll(points):
         global surface
         surface.fill((0,0,0))
         for rec in points:
             pygame.draw.rect(surface, (255,0,0), rec, 0)
+        mainSurface.blit(surface, (0,50),None,0)
         pygame.display.update()
         points = []
 
@@ -331,6 +331,10 @@ def tempLiving():
                                 points.append(pygame.Rect(constant*x,constant*y,constant*2,constant*2))
     return (tempLiving, points)
 
+def updateHeader(gen):
+    global mainSurface
+    
+
 # One tick of the game, call to start game
 def tick():
     global normGrid
@@ -343,23 +347,25 @@ def main():
     global surface 
     global normGrid
     points = []
-    
+    rec = pygame.Rect(100,0,10,10)
     # initial grid
     for x in range (0,MAX_SIZE):
             for y in range (0,MAX_SIZE):
                     if normGrid[x][y] != 1:
                         normGrid[x][y] == 0
     genNum = 0
-    while genNum < 200:
+    while genNum > -1:
         if genNum%10 == 0:
-            print("Generation ", genNum)
+        updateHeader(genNum)
         tick()
         genNum += 1
 
 MAX_SIZE                = 100
-RESOLUTION              = 400
+RESOLUTION              = 600
 FILL_PERCENTAGE         = 20
 EXPANDED_NEIGHBORHOOD   = True
-surface = pygame.display.set_mode((RESOLUTION, RESOLUTION), 0, 0)
-normGrid = [[np.random.randint(100/FILL_PERCENTAGE) for i in range(MAX_SIZE)] for i in range(MAX_SIZE)]
+mainSurface = pygame.display.set_mode((RESOLUTION,RESOLUTION+50))
+surface = pygame.Surface((RESOLUTION, RESOLUTION), 0, mainSurface)
+genFont = pygame.font.SysFont("Verdana", 30, False, False)
+normGrid = [[np.random.randint(int(100/FILL_PERCENTAGE)) for i in range(MAX_SIZE)] for i in range(MAX_SIZE)]
 main()
