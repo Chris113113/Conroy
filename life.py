@@ -1,21 +1,20 @@
 import numpy as np
 import sys, pygame, time
-from turtledemo.lindenmayer import draw
 
 def printAll(points):
         global surface
         surface.fill((0,0,0))
         for rec in points:
-            pygame.draw.rect(surface, (255,0,0), rec, 0)
+            pygame.draw.rect(surface, (0,0,255), rec, 0)
         mainSurface.blit(surface, (0,50),None,0)
         pygame.display.update()
         points = []
 
             
-#Takes in current neighbors and determines if it should live through this generation
+#Takes in current neighbors and determines if it should liev through this generation
 def determineLife(x,y):
         if EXPANDED_NEIGHBORHOOD:
-            neighbors = checkExNeighbors(x,y)
+            neighbors = checkExNeighbors(x,y, True)
         else:
             neighbors = checkNeighbors(x,y)
         #if neighbors != 0 and neighbors != 1 and neighbors != 2 and neighbors != 3:
@@ -27,7 +26,7 @@ def determineLife(x,y):
 
 def determineDLife(x,y):
         if EXPANDED_NEIGHBORHOOD:
-            neighbors = checkExNeighbors(x,y)
+            neighbors = checkExNeighbors(x,y, False)
         else:
             neighbors = checkNeighbors(x,y)
         #if neighbors != 0 and neighbors != 1 and neighbors != 2 and neighbors != 3:
@@ -38,281 +37,64 @@ def determineDLife(x,y):
             return 0    
         
 # Check neighbors and update temp grid
-def checkExNeighbors(x,y):
+def checkExNeighbors(x,y, live):
         global normGrid
         global MAX_SIZE
         neighbors = int(0)
-        if x != 0 and y != 0 and x != MAX_SIZE - 1 and y != MAX_SIZE - 1:
-            if normGrid[x-1][y] == 1:
-                    neighbors += 1
-            if normGrid[x][y+1] == 1:
-                    neighbors += 1
-            if normGrid[x+1][y] == 1:
-                    neighbors += 1
-            if normGrid[x][y-1] == 1:
-                    neighbors += 1
-            if normGrid[x-1][y-1] == 1:
-                    neighbors += 1
-            if normGrid[x-1][y+1] == 1:
-                    neighbors += 1
-            if normGrid[x+1][y+1] == 1:
-                    neighbors += 1
-            if normGrid[x+1][y-1] == 1:
-                    neighbors += 1
-            return neighbors
-        
-                    
-        if x == 0:
-            if y == 0:
-                if normGrid[MAX_SIZE - 1][0] == 1:
-                    neighbors += 1
-                if normGrid[0][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[0][1] == 1:
-                    neighbors += 1
-                if normGrid[1][0] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 1][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[1][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[1][1] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 1][1] == 1:
+        tx = x%(MAX_SIZE)
+        ty = y%(MAX_SIZE)
+        if live:
+            if normGrid[(x-1)%MAX_SIZE][y%MAX_SIZE] == 1:
                     neighbors += 1
             else:
-                if y == MAX_SIZE - 1:
-                    if normGrid[MAX_SIZE - 1][MAX_SIZE - 1] == 1:
-                        neighbors += 1
-                    if normGrid[0][MAX_SIZE - 2] == 1:
-                        neighbors += 1
-                    if normGrid[0][0] == 1:
-                        neighbors += 1
-                    if normGrid[1][MAX_SIZE - 1] == 1:
-                        neighbors += 1
-                    if normGrid[MAX_SIZE - 1][MAX_SIZE - 1] == 1:
-                        neighbors += 1
-                    if normGrid[0][MAX_SIZE - 1] == 1:
-                        neighbors += 1
-                    if normGrid[0][1] == 1:
-                        neighbors += 1
-                    if normGrid[1][1] == 1:
-                        neighbors += 1
-                else:
-                    if normGrid[MAX_SIZE - 1][y] == 1:
-                        neighbors += 1
-                    if normGrid[0][y-1] == 1:
-                        neighbors += 1
-                    if normGrid[0][y+1] == 1:
-                        neighbors += 1
-                    if normGrid[1][y] == 1:
-                        neighbors += 1
-                    if normGrid[MAX_SIZE - 1][y] == 1:
-                        neighbors += 1
-                    if normGrid[0][y] == 1:
-                        neighbors += 1
-                    if normGrid[0][y+1] == 1:
-                        neighbors += 1
-                    if normGrid[1][y+1] == 1:
-                        neighbors += 1
-            return neighbors
-                    
-        if y == 0:
-            if x == MAX_SIZE - 1:
-                if normGrid[MAX_SIZE - 2][0] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 1][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 1][1] == 1:
-                    neighbors += 1
-                if normGrid[0][0] == 1:
-                    neighbors += 1
-                if normGrid[0][1] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 2][1] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 2][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[0][MAX_SIZE - 1] == 1:
+                    deadSet.add(((x-1)%MAX_SIZE,y%MAX_SIZE))
+            if normGrid[x%MAX_SIZE][(y+1)%MAX_SIZE] == 1:
                     neighbors += 1
             else:
-                if normGrid[x-1][0] == 1:
-                    neighbors += 1
-                if normGrid[x][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[x][1] == 1:
-                    neighbors += 1
-                if normGrid[x+1][0] == 1:
-                    neighbors += 1
-                if normGrid[x+1][1] == 1:
-                    neighbors += 1
-                if normGrid[x-1][1] == 1:
-                    neighbors += 1
-                if normGrid[x-1][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[x+1][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-            return neighbors
-                    
-        if x == MAX_SIZE - 1:
-            if y == MAX_SIZE - 1:
-                if normGrid[MAX_SIZE - 2][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 1][MAX_SIZE - 2] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 1][0] == 1:
-                    neighbors += 1
-                if normGrid[0][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 2][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 1][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 1][1] == 1:
-                    neighbors += 1
-                if normGrid[0][1] == 1:
+                    deadSet.add((x%MAX_SIZE,(y+1)%MAX_SIZE))
+            if normGrid[(x+1)%MAX_SIZE][y%MAX_SIZE] == 1:
                     neighbors += 1
             else:
-                if normGrid[MAX_SIZE - 2][y] == 1:
+                    deadSet.add(((x+1)%MAX_SIZE,y%MAX_SIZE))
+            if normGrid[x%MAX_SIZE][(y-1)%MAX_SIZE] == 1:
                     neighbors += 1
-                if normGrid[MAX_SIZE - 1][y-1] == 1:
+            else:
+                    deadSet.add((x%MAX_SIZE,(y-1)%MAX_SIZE))
+            if normGrid[(x-1)%MAX_SIZE][(y-1)%MAX_SIZE] == 1:
                     neighbors += 1
-                if normGrid[MAX_SIZE - 1][y+1] == 1:
+            else:        
+                    deadSet.add(((x-1)%MAX_SIZE,(y-1)%MAX_SIZE))
+            if normGrid[(x-1)%MAX_SIZE][(y+1)%MAX_SIZE] == 1:
                     neighbors += 1
-                if normGrid[0][y] == 1:
+            else:        
+                    deadSet.add(((x-1)%MAX_SIZE,(y+1)%MAX_SIZE))
+            if normGrid[(x+1)%MAX_SIZE][(y+1)%MAX_SIZE] == 1:
                     neighbors += 1
-                if normGrid[MAX_SIZE - 2][y] == 1:
+            else:
+                    deadSet.add(((x+1)%MAX_SIZE,(y+1)%MAX_SIZE))
+            if normGrid[(x+1)%MAX_SIZE][(y-1)%MAX_SIZE] == 1:
                     neighbors += 1
-                if normGrid[MAX_SIZE - 1][y] == 1:
+            else:        
+                    deadSet.add(((x+1)%MAX_SIZE,(y-1)%MAX_SIZE))
+        else:
+            if normGrid[(x-1)%MAX_SIZE][y%MAX_SIZE] == 1:
                     neighbors += 1
-                if normGrid[MAX_SIZE - 1][y+1] == 1:
+            if normGrid[x%MAX_SIZE][(y+1)%MAX_SIZE] == 1:
                     neighbors += 1
-                if normGrid[0][y+1] == 1:
+            if normGrid[(x+1)%MAX_SIZE][y%MAX_SIZE] == 1:
                     neighbors += 1
-            return neighbors
-                    
-        if y == MAX_SIZE - 1:
-            if normGrid[x-1][MAX_SIZE - 1] == 1:
-                neighbors += 1
-            if normGrid[x][MAX_SIZE - 2] == 1:
-                neighbors += 1
-            if normGrid[x][0] == 1:
-                neighbors += 1
-            if normGrid[x+1][MAX_SIZE - 1] == 1:
-                neighbors += 1
-            if normGrid[x-1][MAX_SIZE - 1] == 1:
-                neighbors += 1
-            if normGrid[x][MAX_SIZE - 1] == 1:
-                neighbors += 1
-            if normGrid[x][1] == 1:
-                neighbors += 1
-            if normGrid[x+1][1] == 1:
-                neighbors += 1
-            return neighbors
-            
+            if normGrid[x%MAX_SIZE][(y-1)%MAX_SIZE] == 1:
+                    neighbors += 1
+            if normGrid[(x-1)%MAX_SIZE][(y-1)%MAX_SIZE] == 1:
+                    neighbors += 1
+            if normGrid[(x-1)%MAX_SIZE][(y+1)%MAX_SIZE] == 1:
+                    neighbors += 1
+            if normGrid[(x+1)%MAX_SIZE][(y+1)%MAX_SIZE] == 1:
+                    neighbors += 1
+            if normGrid[(x+1)%MAX_SIZE][(y-1)%MAX_SIZE] == 1:
+                    neighbors += 1
         return neighbors
     
-def checkNeighbors(x,y):
-        global normGrid
-        global MAX_SIZE
-        neighbors = int(0)
-        if x != 0 and y != 0 and x != MAX_SIZE - 1 and y != MAX_SIZE - 1:
-            if normGrid[x-1][y] == 1:
-                    neighbors += 1
-            if normGrid[x][y+1] == 1:
-                    neighbors += 1
-            if normGrid[x+1][y] == 1:
-                    neighbors += 1
-            if normGrid[x][y-1] == 1:
-                    neighbors += 1
-            return neighbors
-        
-                    
-        if x == 0:
-            if y == 0:
-                if normGrid[MAX_SIZE - 1][0] == 1:
-                    neighbors += 1
-                if normGrid[0][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[0][1] == 1:
-                    neighbors += 1
-                if normGrid[1][0] == 1:
-                    neighbors += 1
-            else:
-                if y == MAX_SIZE - 1:
-                    if normGrid[MAX_SIZE - 1][MAX_SIZE - 1] == 1:
-                        neighbors += 1
-                    if normGrid[0][MAX_SIZE - 2] == 1:
-                        neighbors += 1
-                    if normGrid[0][0] == 1:
-                        neighbors += 1
-                    if normGrid[1][MAX_SIZE - 1] == 1:
-                        neighbors += 1
-                else:
-                    if normGrid[MAX_SIZE - 1][y] == 1:
-                        neighbors += 1
-                    if normGrid[0][y-1] == 1:
-                        neighbors += 1
-                    if normGrid[0][y+1] == 1:
-                        neighbors += 1
-                    if normGrid[1][y] == 1:
-                        neighbors += 1
-            return neighbors
-                    
-        if y == 0:
-            if x == MAX_SIZE - 1:
-                if normGrid[MAX_SIZE - 2][0] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 1][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 1][1] == 1:
-                    neighbors += 1
-                if normGrid[0][0] == 1:
-                    neighbors += 1
-            else:
-                if normGrid[x-1][0] == 1:
-                    neighbors += 1
-                if normGrid[x][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[x][1] == 1:
-                    neighbors += 1
-                if normGrid[x+1][0] == 1:
-                    neighbors += 1
-            return neighbors
-                    
-        if x == MAX_SIZE - 1:
-            if y == MAX_SIZE - 1:
-                if normGrid[MAX_SIZE - 2][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 1][MAX_SIZE - 2] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 1][0] == 1:
-                    neighbors += 1
-                if normGrid[0][MAX_SIZE - 1] == 1:
-                    neighbors += 1
-            else:
-                if normGrid[MAX_SIZE - 2][y] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 1][y-1] == 1:
-                    neighbors += 1
-                if normGrid[MAX_SIZE - 1][y+1] == 1:
-                    neighbors += 1
-                if normGrid[0][y] == 1:
-                    neighbors += 1
-            return neighbors
-                    
-        if y == MAX_SIZE - 1:
-            if normGrid[x-1][MAX_SIZE - 1] == 1:
-                neighbors += 1
-            if normGrid[x][MAX_SIZE - 2] == 1:
-                neighbors += 1
-            if normGrid[x][0] == 1:
-                neighbors += 1
-            if normGrid[x+1][MAX_SIZE - 1] == 1:
-                neighbors += 1
-            return neighbors
-        
-
 def tempLiving():
     global normGrid
     global points
@@ -321,18 +103,24 @@ def tempLiving():
     tempLiving = [[0 for i in range(MAX_SIZE)] for i in range(MAX_SIZE)]
     for x in range(MAX_SIZE):
             for y in range(MAX_SIZE):
-                    if normGrid[x][y] == 0:
-                            tempLiving[x][y] = determineDLife(x,y)
-                            if tempLiving[x][y] == 1:
-                                points.append(pygame.Rect(constant*x,constant*y,constant*2,constant*2))
                     if normGrid[x][y] == 1:
                             tempLiving[x][y] = determineLife(x,y)
                             if tempLiving[x][y] == 1:
                                 points.append(pygame.Rect(constant*x,constant*y,constant*2,constant*2))
+    #Check dead neighbors
+    while len(deadSet) != 0:
+        curDead = deadSet.pop()
+        x = curDead[0]
+        y = curDead[1]
+        tempLiving[x][y] = determineDLife(x,y)
+        if tempLiving[x][y] == 1:
+            points.append(pygame.Rect(constant*x,constant*y,constant*2,constant*2))
     return (tempLiving, points)
 
 def updateHeader(gen):
-    global mainSurface
+     txtstr = "Generation %d:" %gen
+     text = genFont.render(txtstr, 1, (255,255,255), (0,0,0))
+     mainSurface.blit(text, (2,2), None, 0)
     
 
 # One tick of the game, call to start game
@@ -343,11 +131,11 @@ def tick():
     printAll(ret[1])
 
 def main():
-    pygame.init()
     global surface 
     global normGrid
     points = []
     rec = pygame.Rect(100,0,10,10)
+    
     # initial grid
     for x in range (0,MAX_SIZE):
             for y in range (0,MAX_SIZE):
@@ -355,17 +143,19 @@ def main():
                         normGrid[x][y] == 0
     genNum = 0
     while genNum > -1:
-        if genNum%10 == 0:
         updateHeader(genNum)
         tick()
+        time.sleep(.01)
         genNum += 1
 
-MAX_SIZE                = 100
-RESOLUTION              = 600
+MAX_SIZE                = 150
+RESOLUTION              = 500
 FILL_PERCENTAGE         = 20
 EXPANDED_NEIGHBORHOOD   = True
+pygame.init()
 mainSurface = pygame.display.set_mode((RESOLUTION,RESOLUTION+50))
 surface = pygame.Surface((RESOLUTION, RESOLUTION), 0, mainSurface)
-genFont = pygame.font.SysFont("Verdana", 30, False, False)
+deadSet = set()
+genFont = pygame.font.Font(None, 24)
 normGrid = [[np.random.randint(int(100/FILL_PERCENTAGE)) for i in range(MAX_SIZE)] for i in range(MAX_SIZE)]
 main()
